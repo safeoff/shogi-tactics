@@ -61,8 +61,24 @@ def choice_badmove(think_results):
 	return badmoves
 
 
+# 駒の動きを日本語に変換
+def convert_words(moves):
+
+	r = ""
+	for move in moves.split():
+		# 先後を変換
+		# 移動先を変換
+		# move[2:3]
+		# 駒の種類を変換
+		# 打ちを変換
+		# 成りを変換
+		pass
+
+	return r
+
+
 # 棋譜から次の一手問題を生成
-def create_tactics(moves):
+def create_tactics(battle_type, moves):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
 	# usi.debug_print = True
@@ -74,10 +90,10 @@ def create_tactics(moves):
 	for i, _ in enumerate(moves):
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
 		usi.usi_go_and_wait_bestmove("byoyomi 1000")
-		print("=== UsiThinkResult ===\n" + usi.think_result.to_string())
 		# 思考結果を記録　初手は記録しない
 		if i > 0:
 			think_results.append([moves[i-1], moves[i], usi.think_result])
+			# TODO この時点のSFENを記録しておけばいいのでは！
 
 	# エンジン切断
 	usi.disconnect()
@@ -85,4 +101,18 @@ def create_tactics(moves):
 	# 悪手を指した局面を抽出
 	badmoves = choice_badmove(think_results)
 
-	# 次の一手問題を生成
+	# 駒の動きを日本語に変換
+	tactics = {}
+	for badmove in badmoves:
+		tactics.update([
+			# TODO SFENの局面がまだ
+			("board", "未実装"),
+			("bestmove", convert_words(badmove.bestmove)),
+			("bestmove_eval",badmove.bestmove_eval),
+			("move", convert_words(badmove.move)),
+			("move_eval", badmove.bestmove_eval),
+			("premove", badmove.premove),
+			("battle_type", battle_type)
+		])
+
+	print(tactics)
