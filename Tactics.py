@@ -8,8 +8,8 @@ def create_tactics(moves):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
 	# usi.debug_print = True
-#	usi.connect("../YaneuraOu478/YaneuraOu-by-gcc")
-	usi.connect("../../../YaneuraOu479/YaneuraOu-arm64-x8a")
+	usi.connect("../YaneuraOu/YaneuraOu-by-gcc")
+#	usi.connect("../YaneuraOu479/YaneuraOu-arm64-x8a")
 
 	# 検討開始
 	for i, _ in enumerate(moves):
