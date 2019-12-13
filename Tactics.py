@@ -1,16 +1,17 @@
 import sys
 sys.path.append('../Ayane/source/shogi')
 import Ayane
+import shogi
 
 
 class Move:
 	def __init__(self, *args):
-		self.i = args[0]
-		self.premove = args[1]
-		self.move = args[2]
-		self.bestmove = args[3]
-		self.move_eval = args[4]
-		self.bestmove_eval = args[5]
+		self.premove = args[0]
+		self.move = args[1]
+		self.bestmove = args[2]
+		self.move_eval = args[3]
+		self.bestmove_eval = args[4]
+		self.sfen = args[5]
 
 
 # 悪手かどうかの判定
@@ -43,7 +44,7 @@ def is_badmove(premove, move, bestmove):
 
 
 # 悪手を指した局面を抽出
-def choice_badmove(think_results):
+def choice_badmove(think_results, sfens):
 	badmoves = []
 	for i, item in enumerate(think_results):
 		# 最初と最後の手ならcontinue
@@ -68,30 +69,79 @@ def choice_badmove(think_results):
 			bestmove = item[2].pvs[0].pv
 			premove = item[0]
 			move = item[1] + " " + think_results[i+1][2].pvs[0].pv
-			badmove = Move(i+2, premove, move, bestmove, move_eval, bestmove_eval)
+			badmove = Move(premove, move, bestmove, move_eval, bestmove_eval, sfens[i])
 			badmoves.append(badmove)
 
 	return badmoves
 
 
+# 駒の種類を変換
+def convert_piece(ay, ax, board):
+	namemap = {
+		"P": "歩", "p": "歩", "L": "香", "l": "香", "N": "桂", "n": "桂",
+		 "S": "銀", "s": "銀", "G": "金", "g": "金", "B": "角", "b": "角",
+		  "R": "飛", "r": "飛", "K": "玉", "k": "玉", "+P": "と", "+p": "と",
+		   "+L": "成香", "+l": "成香", "+N": "成桂", "+n": "成桂", "+S": "成銀",
+		    "+s": "成銀", "+B": "馬", "+b": "馬", "+R": "竜", "+r": "竜"
+	}
+	if ax == "*":
+		return namemap[ay]
+	y = int(ay)
+	x = ord(ax)-96
+	num = (x-1) * 9 + (9-y)
+	name = board.piece_at(num)
+	return namemap[str(name)]
+
+
 # 駒の動きを日本語に変換
-def convert_words(moves):
+def convert_word(piece, move, board):
+	word = ""
+	# 先後を変換
+	turn = "△" if board.move_number%2 == 1 else "▲"
+	# 移動先を変換
+	y = int(move[2])
+	x = ord(move[3])-96
+	xmap = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九"}
+	xkanji = xmap[x]
 
-	r = ""
+	word = turn + str(y) + xkanji + piece
+	# 打ちを変換
+	if move[1] == "*":
+		word += "打"
+	# 成りを変換
+	if len(move) == 5:
+		word += "成"
+	return word
+
+
+# 読み筋を日本語に変換
+def convert_moves(moves, sfen):
+	board = shogi.Board(sfen)
+	words = ""
 	for move in moves.split():
-		# 先後を変換
-		# 移動先を変換
-		# move[2:3]
-		# 駒の種類を変換
-		# 打ちを変換
-		# 成りを変換
-		pass
+		piece = convert_piece(move[0], move[1], board)
+		words += convert_word(piece, move, board) + "　"
+		board.push_usi(move)
 
-	return r
+	return words
+
+
+# 一つ前の動きを日本語に変換
+def convert_premove(premove, sfen):
+	board = shogi.Board(sfen)
+	piece = convert_piece(premove[2], premove[3], board)
+
+	# premoveが成り時の場合、名前を間違えてしまう
+	# 竜成とかになるので、飛成とかに修正する
+	if len(premove) == 5:
+		piecemap = {"と": "歩", "成桂": "桂", "成香": "香", "成銀": "銀", "馬": "角", "竜": "飛"}
+		piece = piecemap[piece]
+
+	return convert_word(piece, premove, board)
 
 
 # 棋譜から次の一手問題を生成
-def create_tactics(battle_type, moves):
+def create_tactics(battle_type, moves, sfens):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
 	# usi.debug_print = True
@@ -102,31 +152,31 @@ def create_tactics(battle_type, moves):
 	think_results = []
 	for i, _ in enumerate(moves):
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
-		usi.usi_go_and_wait_bestmove("byoyomi 1000")
+		usi.usi_go_and_wait_bestmove("byoyomi 100")
 		# 思考結果を記録　初手は記録しない
 		if i > 0:
 			think_results.append([moves[i-1], moves[i], usi.think_result])
-			# TODO この時点のSFENを記録しておけばいいのでは！
 
 	# エンジン切断
 	usi.disconnect()
 
 	# 悪手を指した局面を抽出
-	badmoves = choice_badmove(think_results)
+	sfens.pop(0)
+	badmoves = choice_badmove(think_results, sfens)
 
 	# 駒の動きを日本語に変換
 	tactics = []
 	for badmove in badmoves:
 		map = {
 			# TODO SFENの局面がまだ
-			"board": "未実装",
-			"bestmove": convert_words(badmove.bestmove),
+			"board": shogi.Board(badmove.sfen),
+			"bestmove": convert_moves(badmove.bestmove, badmove.sfen),
 			"bestmove_eval": badmove.bestmove_eval,
-			"move": convert_words(badmove.move),
+			"move": convert_moves(badmove.move, badmove.sfen),
 			"move_eval": badmove.move_eval,
-			"premove": badmove.premove,
+			"premove": convert_premove(badmove.premove, badmove.sfen),
 			"battle_type": battle_type
 		}
 		tactics.append(map)
 
-	print(tactics)
+	return tactics
