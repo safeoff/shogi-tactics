@@ -1,3 +1,18 @@
+"""create shogi tactics from online match.
+& add it to ankiweb.
+
+Usage:
+  create.py (-w | --wars) <wars_id>
+  create.py (-h | --help)
+  create.py --version
+
+Options:
+  -h --help     Show this screen.
+  -w --wars     ID of shogi wars you want to calculate.
+  --version     Show version.
+
+"""
+from docopt import docopt
 import sys
 import collections
 import urllib
@@ -22,7 +37,7 @@ def calc_move_num(move):
 # sfen文字列を、局面のpng画像URLに変換
 def convert_board(sfen, premove):
 	api = "http://sfenreader.appspot.com/sfen"
-	sfen = "?sfen=" + urllib.parse.quote(tactics["sfen"])
+	sfen = "?sfen=" + urllib.parse.quote(sfen)
 	lm = "&lm=" + calc_move_num(premove)
 	board = "<img src=\'" + api + sfen + lm + "\'>"
 
@@ -30,16 +45,17 @@ def convert_board(sfen, premove):
 
 
 # 計算結果をAnki形式に変換
-# front: 局面、戦法名、一つ前の手、最善手の評価値、本譜の評価値
+# front: 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値
 # back: 最善手の読み筋、本譜の読み筋
-def convert_tactics(tactics):
+def convert_tactics(tactics, id):
 	board = convert_board(tactics["sfen"], tactics["premove"])
+	player = id + "　"
 	battle_type = tactics["battle_type"] + "　"
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
 	move_eval = "本譜の評価値：　" + str(tactics["move_eval"]) + "　"
 
-	front = board + battle_type + premove + bestmove_eval + move_eval
+	front = board + player + battle_type + premove + bestmove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
 	move = "本譜+CPUの読み筋：　" + tactics["move"] + "　"
@@ -60,10 +76,9 @@ def is_first(kifuurl, id):
 	return False
 
 
-# ウォーズの棋譜を取得する（10分切れ）
-if __name__ == "__main__":
-	id = "safeoff"
-	gt = ""
+# 棋譜から次の一手問題を自動生成してAnkiに登録
+def create(id, gt):
+	# ウォーズの棋譜を取得する
 	kifus = kifuDownloader.download_warskifu(id, gt)
 
 	# ウォーズの棋譜を送って計算させる
@@ -79,8 +94,8 @@ if __name__ == "__main__":
 	# Ankiにカードを登録
 	battle_types = []
 	for tactics in tacticss:
-		front, back = convert_tactics(tactics)
-		deck = "学習::将棋::実践次の一手::" + tactics["battle_type"]
+		front, back = convert_tactics(tactics, id)
+		deck = "学習::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
 
 		anki_result = AddAnki.addAnki(front, back, deck)
 
@@ -92,3 +107,9 @@ if __name__ == "__main__":
 	for k, v in c.items():
 		msg = "created " + str(v) + " " + k + " tactics.\n"
 		print(msg)
+
+
+if __name__ == "__main__":
+	args = docopt(__doc__, version='0.1')
+	if args["--wars"]:
+		create(args["<wars_id>"], "")
