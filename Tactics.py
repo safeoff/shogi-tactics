@@ -169,6 +169,7 @@ def create_tactics(battle_type, moves, sfens):
 	for badmove in badmoves:
 		map = {
 			"sfen": badmove.sfen,
+			"board": shogi.Board(badmove.sfen).kif_str(),
 			"bestmove": convert_moves(badmove.bestmove, badmove.sfen),
 			"bestmove_eval": badmove.bestmove_eval,
 			"move": convert_moves(badmove.move, badmove.sfen),

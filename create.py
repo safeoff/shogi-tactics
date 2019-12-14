@@ -3,16 +3,20 @@
 
 Usage:
   create.py (-w | --wars) <wars_id>
+  create.py (-w | --wars) <wars_id> --file
   create.py (-h | --help)
   create.py --version
 
 Options:
   -h --help     Show this screen.
   -w --wars     ID of shogi wars you want to calculate.
+  --file        output to a file. it doesn't add to ankiweb.
   --version     Show version.
 
 """
 from docopt import docopt
+import datetime
+import os
 import sys
 import collections
 import urllib
@@ -47,7 +51,7 @@ def convert_board(sfen, premove):
 # 計算結果をAnki形式に変換
 # front: 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値
 # back: 最善手の読み筋、本譜の読み筋
-def convert_tactics(tactics, id):
+def convert_tactics_anki(tactics, id):
 	board = convert_board(tactics["sfen"], tactics["premove"])
 	player = id + "　"
 	battle_type = tactics["battle_type"] + "　"
@@ -64,6 +68,24 @@ def convert_tactics(tactics, id):
 	return front, back
 
 
+# 計算結果をテキストファイル用の形式に変換
+# 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値、最善手の読み筋、本譜の読み筋
+def convert_tactics_text(tactics):
+	board = tactics["board"] + "\n"
+	battle_type = tactics["battle_type"] + "\n"
+	premove = tactics["premove"] + "まで\n"
+	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "\n"
+	move_eval = "本譜の評価値：　" + str(tactics["move_eval"]) + "\n\n" + "- "*15 + "\n\n"
+
+	front = board + battle_type + premove + bestmove_eval + move_eval
+
+	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "\n"
+	move = "本譜+CPUの読み筋：　" + tactics["move"] + "\n\n" + "="*30 + "\n\n\n"
+
+	back = bestmove + move
+	return "【問題】\n\n" + front + back
+
+
 # プレイヤーが先手かどうか
 def is_first(kifuurl, id):
 	match = re.search(r"games/(.+)", kifuurl).group(1)
@@ -77,7 +99,7 @@ def is_first(kifuurl, id):
 
 
 # 棋譜から次の一手問題を自動生成してAnkiに登録
-def create(id, gt):
+def create(id, gt, is_fileonly):
 	# ウォーズの棋譜を取得する
 	kifus = kifuDownloader.download_warskifu(id, gt)
 
@@ -94,12 +116,25 @@ def create(id, gt):
 	# Ankiにカードを登録
 	battle_types = []
 	for tactics in tacticss:
-		front, back = convert_tactics(tactics, id)
-		deck = "学習::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
+		is_success = False
+		# ファイル
+		if is_fileonly:
+			dirname = "tactics"
+			os.makedirs(dirname, exist_ok=True)
+			date = datetime.date.today().strftime("%Y%m%d")
+			filename = tactics["battle_type"] + "_" + id + "_" + date + ".txt"
+			with open(dirname + "/" + filename, "a") as f:
+				msg = convert_tactics_text(tactics)
+				f.write(msg)
+				is_success = True
+		# Anki
+		else:
+			front, back = convert_tactics_anki(tactics, id)
+			deck = "学習::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
+			anki_result = AddAnki.addAnki(front, back, deck)
+			is_success = "1" in str(anki_result)
 
-		anki_result = AddAnki.addAnki(front, back, deck)
-
-		if "1" in str(anki_result):
+		if is_success:
 			battle_types.append(tactics["battle_type"])
 
 	# カード生成数を戦法ごとに出力
@@ -112,4 +147,4 @@ def create(id, gt):
 if __name__ == "__main__":
 	args = docopt(__doc__, version='0.1')
 	if args["--wars"]:
-		create(args["<wars_id>"], "")
+		create(args["<wars_id>"], "", args["--file"])
