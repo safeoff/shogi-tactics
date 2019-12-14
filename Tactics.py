@@ -121,8 +121,8 @@ def convert_moves(moves, sfen):
 	words = ""
 	for move in moves.split():
 		piece = convert_piece(move[0], move[1], board)
-		words += convert_word(piece, move, board) + "　"
 		board.push_usi(move)
+		words += convert_word(piece, move, board) + "　"
 
 	return words
 
