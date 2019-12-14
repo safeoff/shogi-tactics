@@ -110,7 +110,7 @@ def create(id, gt, is_fileonly):
 		moves = item[0]
 		sfens = item[1]
 
-		calculation_result = Tactics.create_tactics(kifu["battle_type"], moves, sfens)
+		calculation_result = Tactics.create_tactics(kifu["battle_type"], moves, sfens, is_first(kifu["kifuurl"], id))
 		tacticss[len(tacticss):len(tacticss)] = calculation_result
 
 	# Ankiにカードを登録

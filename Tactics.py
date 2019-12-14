@@ -44,22 +44,23 @@ def is_badmove(premove, move, bestmove):
 
 
 # 悪手を指した局面を抽出
-def choice_badmove(think_results, sfens):
+def choice_badmove(think_results, sfens, is_first):
 	badmoves = []
 	for i, item in enumerate(think_results):
-		# 最初と最後の手ならcontinue
+		# 2手目と最後の手ならcontinue
 		if i==0 or i > len(think_results)-2:
+			continue
+		# 自分の手番のみ抽出する
+		is_first_now = i%2 == 1
+		if is_first_now != is_first:
 			continue
 		# 評価値がNoneならcontinue
 		premove_eval = think_results[i-1][2].pvs[0].eval
 		if premove_eval is None:
 			continue
 
-		# 指した手による機会損失（最善手と指した手の評価値の差）を計算
-		# 評価値は先後で符号が反転しているのでここで調整する
-
 		# 悪手なら保存
-		if is_badmove(think_results[i-1][2], think_results[i+1][2], item[2] ):
+		if is_badmove(think_results[i-1][2], think_results[i+1][2], item[2]):
 			move_eval = -think_results[i+1][2].pvs[0].eval
 			bestmove_eval = item[2].pvs[0].eval
 			# 先手番なら反転
@@ -141,7 +142,7 @@ def convert_premove(premove, sfen):
 
 
 # 棋譜から次の一手問題を生成
-def create_tactics(battle_type, moves, sfens):
+def create_tactics(battle_type, moves, sfens, is_first):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
 	# usi.debug_print = True
@@ -152,7 +153,7 @@ def create_tactics(battle_type, moves, sfens):
 	think_results = []
 	for i, _ in enumerate(moves):
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
-		usi.usi_go_and_wait_bestmove("byoyomi 2000")
+		usi.usi_go_and_wait_bestmove("byoyomi 100")
 		# 思考結果を記録　初手は記録しない
 		if i > 0:
 			think_results.append([moves[i-1], moves[i], usi.think_result])
@@ -162,7 +163,7 @@ def create_tactics(battle_type, moves, sfens):
 
 	# 悪手を指した局面を抽出
 	sfens.pop(0)
-	badmoves = choice_badmove(think_results, sfens)
+	badmoves = choice_badmove(think_results, sfens, is_first)
 
 	# 駒の動きを日本語に変換
 	tactics = []
