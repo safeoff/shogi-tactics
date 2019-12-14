@@ -152,7 +152,7 @@ def create_tactics(battle_type, moves, sfens):
 	think_results = []
 	for i, _ in enumerate(moves):
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
-		usi.usi_go_and_wait_bestmove("byoyomi 100")
+		usi.usi_go_and_wait_bestmove("byoyomi 2000")
 		# 思考結果を記録　初手は記録しない
 		if i > 0:
 			think_results.append([moves[i-1], moves[i], usi.think_result])
@@ -168,7 +168,7 @@ def create_tactics(battle_type, moves, sfens):
 	tactics = []
 	for badmove in badmoves:
 		map = {
-			"board": badmove.sfen,
+			"sfen": badmove.sfen,
 			"bestmove": convert_moves(badmove.bestmove, badmove.sfen),
 			"bestmove_eval": badmove.bestmove_eval,
 			"move": convert_moves(badmove.move, badmove.sfen),
