@@ -3,6 +3,33 @@ sys.path.append('../csa2moves')
 import Csa2moves
 import unittest
 import Tactics
+import create
+
+
+class Testcreate(unittest.TestCase):
+
+	# 先手番判定
+	def test_is_first1(self):
+		# arrange
+		kifuurl = "https://kif-pona.heroz.jp/games/safeoff-sei1226-20191210_103425"
+		id = "safeoff"
+		expected_value = True
+		# act
+		result = create.is_first(kifuurl, id)
+		# assert
+		self.assertEqual(expected_value, result)
+
+
+	# 先手番判定（似たid）
+	def test_is_first2(self):
+		# arrange
+		kifuurl = "https://kif-pona.heroz.jp/games/id0000-id00-20191210_103425"
+		id = "id"
+		expected_value = False
+		# act
+		result = create.is_first(kifuurl, id)
+		# assert
+		self.assertEqual(expected_value, result)
 
 
 class TestTactics(unittest.TestCase):

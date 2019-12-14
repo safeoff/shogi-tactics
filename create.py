@@ -1,6 +1,7 @@
 import sys
 import collections
 import urllib
+import re
 sys.path.append('../kifu-downloader')
 import kifuDownloader
 sys.path.append('../csa2moves')
@@ -45,6 +46,18 @@ def convert_tactics(tactics):
 
 	back = bestmove + move
 	return front, back
+
+
+# プレイヤーが先手かどうか
+def is_first(kifuurl, id):
+	match = re.search(r"games/(.+)", kifuurl).group(1)
+	first_player = match[0:len(id)]
+
+	# 先手: id0000, 後手: id00 みたいなケースに対応
+	# -の位置で判別できる
+	if first_player == id:
+		return match[len(id)] == "-"
+	return False
 
 
 # ウォーズの棋譜を取得する（10分切れ）
