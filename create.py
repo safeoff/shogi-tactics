@@ -71,7 +71,7 @@ def convert_tactics_anki(tactics, id):
 # 計算結果をテキストファイル用の形式に変換
 # 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値、最善手の読み筋、本譜の読み筋
 def convert_tactics_text(tactics):
-	board = tactics["board"] + "\n"
+	board = tactics["board"] + "\n" + tactics["sfen"] + "\n"
 	battle_type = tactics["battle_type"] + "\n"
 	premove = tactics["premove"] + "まで\n"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "\n"
