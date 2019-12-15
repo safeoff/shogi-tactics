@@ -152,7 +152,7 @@ def create_tactics(battle_type, moves, sfens, times, is_first):
 	usi.set_engine_options({"MultiPV": "2"})
 	# usi.debug_print = True
 	#usi.connect("../YaneuraOu/YaneuraOu-by-gcc")
-	usi.connect("../YaneuraOu479/YaneuraOu-arm64-x8a")
+	usi.connect("../YaneuraOu479/YaneuraOu-arm64-v8a")
 
 	# 検討開始
 	think_results = []
