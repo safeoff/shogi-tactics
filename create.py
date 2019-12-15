@@ -100,10 +100,12 @@ def is_first(kifuurl, id):
 	return False
 
 
-# 棋譜から次の一手問題を自動生成してAnkiに登録
+# 棋譜から次の一手問題を自動生成
 def create(id, gt, is_fileonly):
 	# ウォーズの棋譜を取得する
 	kifus = kifuDownloader.download_warskifu(id, gt)
+	msg = "downloaded " + str(len(kifus)) + " score sheets."
+	print(msg)
 
 	# ウォーズの棋譜を送って計算させる
 	tacticss = []

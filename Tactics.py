@@ -114,12 +114,16 @@ def convert_word(piece, move, board):
 	xkanji = xmap[x]
 
 	word = turn + str(y) + xkanji + piece
-	# 打ちを変換
-	if move[1] == "*":
-		word += "打"
 	# 成りを変換
 	if len(move) == 5:
 		word += "成"
+	# 打ちを変換
+	if move[1] == "*":
+		word += "打"
+	# 前の位置を追加
+	else:
+		word += "(" + move[0] + str(ord(move[1])-96) + ")"
+
 	return word
 
 
