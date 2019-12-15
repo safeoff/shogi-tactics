@@ -43,7 +43,7 @@ def convert_board(sfen, premove):
 	api = "http://sfenreader.appspot.com/sfen"
 	sfen = "?sfen=" + urllib.parse.quote(sfen)
 	lm = "&lm=" + calc_move_num(premove)
-	board = "<img src=\'" + api + sfen + lm + "\'>"
+	board = api + sfen + lm
 
 	return board
 
@@ -52,7 +52,7 @@ def convert_board(sfen, premove):
 # front: 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値
 # back: 最善手の読み筋、本譜の読み筋
 def convert_tactics_anki(tactics, id):
-	board = convert_board(tactics["sfen"], tactics["premove"])
+	board = "<img src=\'" + convert_board(tactics["sfen"], tactics["premove"]) + "\'>"
 	player = id + "　"
 	battle_type = tactics["battle_type"] + "　"
 	premove = tactics["premove"] + "まで　"
@@ -71,7 +71,8 @@ def convert_tactics_anki(tactics, id):
 # 計算結果をテキストファイル用の形式に変換
 # 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値、最善手の読み筋、本譜の読み筋
 def convert_tactics_text(tactics):
-	board = tactics["board"] + "\n" + tactics["sfen"] + "\n"
+	board = tactics["board"] + "\n"
+	board += convert_board(tactics["sfen"], tactics["premove"]) + "\n"
 	battle_type = tactics["battle_type"] + "\n"
 	premove = tactics["premove"] + "まで\n"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "\n"
