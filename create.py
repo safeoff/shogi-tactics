@@ -49,17 +49,15 @@ def convert_board(sfen, premove):
 
 
 # 計算結果をAnki形式に変換
-# front: 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値
+# front: 局面、一つ前の手、最善手の評価値、本譜の評価値
 # back: 最善手の読み筋、本譜の読み筋
-def convert_tactics_anki(tactics, id):
+def convert_tactics_anki(tactics):
 	board = "<img src=\'" + convert_board(tactics["sfen"], tactics["premove"]) + "\'>"
-	player = id + "　"
-	battle_type = tactics["battle_type"] + "　"
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
 
-	front = board + player + battle_type + premove + bestmove_eval + move_eval
+	front = board + premove + bestmove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
 	move = "指した手+CPUの読み筋：　" + tactics["move"] + "　"
@@ -130,7 +128,7 @@ def create(id, gt, is_fileonly):
 				is_success = True
 		# Anki
 		else:
-			front, back = convert_tactics_anki(tactics, id)
+			front, back = convert_tactics_anki(tactics)
 			deck = "学習::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
 			anki_result = AddAnki.addAnki(front, back, deck)
 			is_success = "1" in str(anki_result)
