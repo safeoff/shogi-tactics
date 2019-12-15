@@ -57,12 +57,12 @@ def convert_tactics_anki(tactics, id):
 	battle_type = tactics["battle_type"] + "　"
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
-	move_eval = "本譜の評価値：　" + str(tactics["move_eval"]) + "　"
+	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
 
 	front = board + player + battle_type + premove + bestmove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
-	move = "本譜+CPUの読み筋：　" + tactics["move"] + "　"
+	move = "指した手+CPUの読み筋：　" + tactics["move"] + "　"
 
 	back = bestmove + move
 	return front, back
@@ -75,12 +75,12 @@ def convert_tactics_text(tactics):
 	battle_type = tactics["battle_type"] + "\n"
 	premove = tactics["premove"] + "まで\n"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "\n"
-	move_eval = "本譜の評価値：　" + str(tactics["move_eval"]) + "\n\n" + "- "*15 + "\n\n"
+	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "\n\n" + "- "*15 + "\n\n"
 
 	front = board + battle_type + premove + bestmove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "\n"
-	move = "本譜+CPUの読み筋：　" + tactics["move"] + "\n\n" + "="*30 + "\n\n\n"
+	move = "指した手+CPUの読み筋：　" + tactics["move"] + "\n\n" + "="*30 + "\n\n\n"
 
 	back = bestmove + move
 	return "【問題】\n\n" + front + back
