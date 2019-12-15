@@ -156,9 +156,10 @@ def convert_premove(premove, sfen):
 
 
 # 棋譜から次の一手問題を生成
-def create_tactics(battle_type, moves, sfens, is_first):
+def create_tactics(battle_type, moves, sfens, times, is_first):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
+	usi.set_engine_options({"MultiPV": "2"})
 	# usi.debug_print = True
 	usi.connect("../YaneuraOu/YaneuraOu-by-gcc")
 #	usi.connect("../YaneuraOu479/YaneuraOu-arm64-x8a")
@@ -166,6 +167,11 @@ def create_tactics(battle_type, moves, sfens, is_first):
 	# 検討開始
 	think_results = []
 	for i, _ in enumerate(moves):
+		# 自分の残り持ち時間が1分未満の手は検討しない
+		if times[i] < 60:
+			is_first_now = i%2 == 1
+			if is_first_now != is_first:
+				break
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
 		usi.usi_go_and_wait_bestmove("byoyomi 100")
 		# 思考結果を記録　初手は記録しない

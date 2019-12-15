@@ -110,16 +110,16 @@ def create(id, gt, is_fileonly):
 	# ウォーズの棋譜を送って計算させる
 	tacticss = []
 	for kifu in kifus:
-		item = Csa2moves.csa2moves(kifu["kifu"])
-		moves = item[0]
-		sfens = item[1]
+		usi, times = Csa2moves.csa2moves(kifu["kifu"])
+		moves = usi[0]
+		sfens = usi[1]
 
-		calculation_result = Tactics.create_tactics(kifu["battle_type"], moves, sfens, is_first(kifu["kifuurl"], id))
+		calculation_result = Tactics.create_tactics(kifu["battle_type"], moves, sfens, times, is_first(kifu["kifuurl"], id))
 		tacticss[len(tacticss):len(tacticss)] = calculation_result
 
 	# カードを登録
 	# ファイルなら下準備
-	if is_fileonly:
+	if is_fileonly and len(tacticss)>0:
 		dirname = "tactics/" + id
 		os.makedirs(dirname, exist_ok=True)
 		filename = datetime.datetime.now().strftime("%Y%m%d%H%M")
