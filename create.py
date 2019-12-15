@@ -1,16 +1,16 @@
-"""create shogi tactics from online match.
-& add it to ankiweb.
+"""Create shogi tactics from online match.
+& Add it to ankiweb.
 
 Usage:
-  create.py (-w | --wars) <wars_id>
-  create.py (-w | --wars) <wars_id> --file
+  create.py (--wars <wars_id>) [--file] [--limit <limit_num>]
   create.py (-h | --help)
   create.py --version
 
 Options:
   -h --help     Show this screen.
-  -w --wars     ID of shogi wars you want to calculate.
-  --file        output to a file. it doesn't add to ankiweb.
+  --wars        ID of shogi wars you want to calculate.
+  --limit       Maximum number of game records to download [default:no limit].
+  --file        Output to a file. It doesn't add to ankiweb.
   --version     Show version.
 
 """
@@ -105,10 +105,10 @@ def is_first(kifuurl, id):
 
 
 # 棋譜から次の一手問題を自動生成
-def create(id, gt, is_fileonly):
+def create(id, gt, is_fileonly, limit_num):
 	# ウォーズの棋譜を取得する
-	kifus = kifuDownloader.download_warskifu(id, gt)
-	msg = "downloaded " + str(len(kifus)) + " score sheets."
+	kifus = kifuDownloader.download_warskifu(id, gt, limit_num)
+	msg = "downloaded " + str(len(kifus)) + " game records."
 	print(msg)
 
 	# ウォーズの棋譜を送って計算させる
@@ -157,5 +157,7 @@ def create(id, gt, is_fileonly):
 
 if __name__ == "__main__":
 	args = docopt(__doc__, version='0.1')
-	if args["--wars"]:
-		create(args["<wars_id>"], "", args["--file"])
+	if args["<limit_num>"] is not None:
+		limit = int(args["<limit_num>"])
+	if args["<wars_id>"] is not None:
+		create(args["<wars_id>"], "", args["--file"], limit)

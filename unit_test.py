@@ -13,7 +13,7 @@ class Testcreate(unittest.TestCase):
 		# arrange
 		id = "safeoff"
 		# act
-		create.create(id, "", True)
+		create.create(id, "", True, 1)
 		# assert
 
 
@@ -22,7 +22,7 @@ class Testcreate(unittest.TestCase):
 		# arrange
 		id = "safeoff"
 		# act
-		create.create(id, "", False)
+		create.create(id, "", False, None)
 		# assert
 
 
