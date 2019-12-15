@@ -49,41 +49,45 @@ def convert_board(sfen, premove):
 
 
 # 計算結果をAnki形式に変換
-# front: 局面、一つ前の手、最善手の評価値、本譜の評価値
-# back: 最善手の読み筋、本譜の読み筋
+# front: 局面、一つ前の手、最善手の評価値、二番手の評価値、本譜の評価値
+# back: 最善手の読み筋、二番手の読み筋、本譜の読み筋
 def convert_tactics_anki(tactics):
 	board = convert_board(tactics["sfen"], tactics["premove"])
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
+	bettermove_eval = "二番手の評価値：　" + str(tactics["bettermove_eval"]) + "　"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
 
-	front = board + premove + bestmove_eval + move_eval
+	front = board + premove + bestmove_eval + bettermove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
+	bettermove = "二番手+CPUの読み筋：　" + tactics["bettermove"] + "　"
 	move = "指した手+CPUの読み筋：　" + tactics["move"] + "　"
 
-	back = bestmove + move
+	back = bestmove + bettermove + move
 	return front, back
 
 
 # 計算結果をHTML形式に変換
-# front: 戦型、局面、一つ前の手、最善手の評価値、本譜の評価値
-# back: 最善手の読み筋、本譜の読み筋
+# front: 戦法、局面、一つ前の手、最善手の評価値、二番手の評価値、本譜の評価値
+# back: 最善手の読み筋、二番手の読み筋、本譜の読み筋
 def convert_tactics_text(tactics, qnum):
 	battle_type = "【問題" + qnum + "】" + tactics["battle_type"] + "<br>"
 	board = convert_board(tactics["sfen"], tactics["premove"]) + "<br>"
 	premove = tactics["premove"] + "まで<br>"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "<br>"
+	bettermove_eval = "二番手の評価値：　" + str(tactics["bettermove_eval"]) + "<br>"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "<br>"
 
-	front = battle_type + board + premove + bestmove_eval + move_eval
+	front = battle_type + board + premove + bestmove_eval + bettermove_eval + move_eval
 
 	button ="<input type=\"button\" value=\"解答\" onclick=\"document.getElementById(\'" + qnum + "\').style.visibility = \'visible\';\">"
 	div = "<div id=\"" + qnum + "\" style=\"visibility:hidden\">"
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "<br>"
+	bettermove = "二番手+CPUの読み筋：　" + tactics["bettermove"] + "<br>"
 	move = "指した手+CPUの読み筋：　" + tactics["move"] + "<br>"
 
-	back = button + div + bestmove + move + "</div><hr>\n"
+	back = button + div + bestmove + bettermove + move + "</div><hr>\n"
 
 	return front + back
 
@@ -147,7 +151,7 @@ def create(id, gt, is_fileonly):
 	# カード生成数を戦法ごとに出力
 	c = collections.Counter(battle_types)
 	for k, v in c.items():
-		msg = "created " + str(v) + " " + k + " tactics.\n"
+		msg = "created " + str(v) + " " + k + " tactics."
 		print(msg)
 
 
