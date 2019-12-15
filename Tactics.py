@@ -58,6 +58,9 @@ def choice_badmove(think_results, sfens, is_first):
 		premove_eval = think_results[i-1][2].pvs[0].eval
 		if premove_eval is None:
 			continue
+		# 指した手と最善手が同じならcontinue（読み筋の評価値だけ異なる場合がある）
+		if item[1] == item[2].pvs[0].pv[0:4]:
+			continue
 
 		# 悪手なら保存
 		if is_badmove(think_results[i-1][2], think_results[i+1][2], item[2]):
