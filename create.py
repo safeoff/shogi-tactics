@@ -2,13 +2,14 @@
 & Add it to ankiweb.
 
 Usage:
-  create.py (--wars <wars_id>) [--file] [--limit <limit_num>]
+  create.py (--wars <wars_id> --rule <rule>) [--file --limit <limit_num>]
   create.py (-h | --help)
   create.py --version
 
 Options:
   -h --help     Show this screen.
   --wars        ID of shogi wars you want to calculate.
+  --rule        game rule[10m | 3m | 10s]
   --limit       Maximum number of game records to download [default:no limit].
   --file        Output to a file. It doesn't add to ankiweb.
   --version     Show version.
@@ -157,7 +158,15 @@ def create(id, gt, is_fileonly, limit_num):
 
 if __name__ == "__main__":
 	args = docopt(__doc__, version='0.1')
+	limit = None
 	if args["<limit_num>"] is not None:
 		limit = int(args["<limit_num>"])
+	if not args["<rule>"] in ["10m", "3m", "10s"]:
+		print("rule: wrong value.")
+		exit()
+	else:
+		gtmap = {"10m": "", "3m": "sb", "10s": "s1"}
+		gt = gtmap[args["<rule>"]]
+
 	if args["<wars_id>"] is not None:
-		create(args["<wars_id>"], "", args["--file"], limit)
+		create(args["<wars_id>"], gt, args["--file"], limit)
