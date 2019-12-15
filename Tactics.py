@@ -17,36 +17,22 @@ class Move:
 
 
 # 悪手かどうかの判定
-def is_badmove(premove, move, bestmove):
-	# 指した手による機会損失（最善手と指した手の評価値の差）を計算
+def is_badmove(move, bestmove):
+	# 指した手による損失（最善手と指した手の評価値の差）を計算
 	# 評価値は先後で符号が反転しているのでここで調整する
-	premove_eval = -premove.pvs[0].eval
 	move_eval = -move.pvs[0].eval
 	bestmove_eval = bestmove.pvs[0].eval
-	lost = abs(bestmove_eval - move_eval)
+	loss = abs(bestmove_eval - move_eval)
 
-	# 疑問手含む問題ない手：採用しない
-	if lost < 1000:
+	# 評価値の絶対値0-2000 : 許容する損失の閾値600-1200 のイメージ
+	eval_limit = abs(bestmove_eval)*0.3 + 600
+	if loss < eval_limit:
 		return False
-	# 形勢が極端に傾いている局面での・・・
-	if abs(premove_eval) > 2500:
-		# 悪手：採用しない
-		if (lost > 1000) and (lost < 2000):
-			return False
-		# 詰み逃し：採用しない　（逆転は採用）
-		if (abs(move_eval) > 9999) and (premove_eval*bestmove_eval >= 0):
-			return False
-		# 最善手も指した手も大差なし：採用しない
-		if (abs(move_eval) > 2500) and (abs(bestmove_eval) > 2500):
-			return False
-
-
-	# 読み筋が少ない：採用しない
-	splited_pv = bestmove.pvs[0].pv
-	if len(splited_pv.split()) < 3:
+	# 勝勢or敗勢な局面：採用しない
+	if abs(bestmove_eval) > 2000:
 		return False
 
-	# 上記以外は悪手・頓死・詰み逃し・必死逃しと判定　採用
+	# 上記以外は悪手と判定　採用
 	return True
 
 
@@ -70,7 +56,7 @@ def choice_badmove(t_rs, sfens, is_first):
 			continue
 
 		# 悪手なら保存
-		if is_badmove(t_rs[i-1][2], t_rs[i+1][2], t_r):
+		if is_badmove(t_rs[i+1][2], t_r):
 			move_eval = -t_rs[i+1][2].pvs[0].eval
 			bestmove_eval = t_r.pvs[0].eval
 			bettermove_eval = t_r.pvs[1].eval
