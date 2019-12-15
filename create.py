@@ -43,7 +43,7 @@ def convert_board(sfen, premove):
 	api = "http://sfenreader.appspot.com/sfen"
 	sfen = "?sfen=" + urllib.parse.quote(sfen)
 	lm = "&lm=" + calc_move_num(premove)
-	board = api + sfen + lm
+	board = "<img src=\'" + api + sfen + lm + "\'>"
 
 	return board
 
@@ -52,7 +52,7 @@ def convert_board(sfen, premove):
 # front: 局面、一つ前の手、最善手の評価値、本譜の評価値
 # back: 最善手の読み筋、本譜の読み筋
 def convert_tactics_anki(tactics):
-	board = "<img src=\'" + convert_board(tactics["sfen"], tactics["premove"]) + "\'>"
+	board = convert_board(tactics["sfen"], tactics["premove"])
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
@@ -66,23 +66,26 @@ def convert_tactics_anki(tactics):
 	return front, back
 
 
-# 計算結果をテキストファイル用の形式に変換
-# 局面、プレイヤー、戦法名、一つ前の手、最善手の評価値、本譜の評価値、最善手の読み筋、本譜の読み筋
-def convert_tactics_text(tactics):
-	board = tactics["board"] + "\n"
-	board += convert_board(tactics["sfen"], tactics["premove"]) + "\n"
-	battle_type = tactics["battle_type"] + "\n"
-	premove = tactics["premove"] + "まで\n"
-	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "\n"
-	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "\n\n" + "- "*15 + "\n\n"
+# 計算結果をHTML形式に変換
+# front: 戦型、局面、一つ前の手、最善手の評価値、本譜の評価値
+# back: 最善手の読み筋、本譜の読み筋
+def convert_tactics_text(tactics, qnum):
+	battle_type = "【問題" + qnum + "】" + tactics["battle_type"] + "<br>"
+	board = convert_board(tactics["sfen"], tactics["premove"]) + "<br>"
+	premove = tactics["premove"] + "まで<br>"
+	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "<br>"
+	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "<br>"
 
-	front = board + battle_type + premove + bestmove_eval + move_eval
+	front = battle_type + board + premove + bestmove_eval + move_eval
 
-	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "\n"
-	move = "指した手+CPUの読み筋：　" + tactics["move"] + "\n\n" + "="*30 + "\n\n\n"
+	button ="<input type=\"button\" value=\"解答\" onclick=\"document.getElementById(\'" + qnum + "\').style.visibility = \'visible\';\">"
+	div = "<div id=\"" + qnum + "\" style=\"visibility:hidden\">"
+	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "<br>"
+	move = "指した手+CPUの読み筋：　" + tactics["move"] + "<br>"
 
-	back = bestmove + move
-	return "【問題】\n\n" + front + back
+	back = button + div + bestmove + move + "</div><hr>\n"
+
+	return front + back
 
 
 # プレイヤーが先手かどうか
@@ -112,18 +115,21 @@ def create(id, gt, is_fileonly):
 		calculation_result = Tactics.create_tactics(kifu["battle_type"], moves, sfens, is_first(kifu["kifuurl"], id))
 		tacticss[len(tacticss):len(tacticss)] = calculation_result
 
-	# Ankiにカードを登録
+	# カードを登録
+	# ファイルなら下準備
+	if is_fileonly:
+		dirname = "tactics/" + id
+		os.makedirs(dirname, exist_ok=True)
+		filename = datetime.datetime.now().strftime("%Y%m%d%H%M")
+		filename += tacticss[0]["battle_type"] + "ほか" + str(len(tacticss)) + "問.html"
+
 	battle_types = []
 	for tactics in tacticss:
 		is_success = False
 		# ファイル
 		if is_fileonly:
-			dirname = "tactics"
-			os.makedirs(dirname, exist_ok=True)
-			date = datetime.date.today().strftime("%Y%m%d")
-			filename = tactics["battle_type"] + "_" + id + "_" + date + ".txt"
 			with open(dirname + "/" + filename, "a") as f:
-				msg = convert_tactics_text(tactics)
+				msg = convert_tactics_text(tactics, str(len(battle_types)+1))
 				f.write(msg)
 				is_success = True
 		# Anki

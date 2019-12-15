@@ -8,12 +8,21 @@ import create
 
 class Testcreate(unittest.TestCase):
 
-	# 結合テスト
-	def test_create(self):
+	# ファイル出力の結合テスト
+	def test_create1(self):
 		# arrange
 		id = "safeoff"
 		# act
 		create.create(id, "", True)
+		# assert
+
+
+	# Anki形式の結合テスト
+	def test_create2(self):
+		# arrange
+		id = "safeoff"
+		# act
+		create.create(id, "", False)
 		# assert
 
 
