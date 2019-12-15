@@ -27,13 +27,18 @@ def is_badmove(premove, move, bestmove):
 	if lost < 1000:
 		return False
 	# 形勢が極端に傾いている局面での・・・
-	if abs(premove_eval > 2500):
+	if abs(premove_eval) > 2500:
 		# 悪手：採用しない
-		if (lost > 1000 and lost < 2000):
+		if (lost > 1000) and (lost < 2000):
 			return False
 		# 詰み逃し：採用しない　（逆転は採用）
-		if (abs(move_eval) > 9999 and premove_eval*bestmove_eval >= 0):
+		if (abs(move_eval) > 9999) and (premove_eval*bestmove_eval >= 0):
 			return False
+		# 最善手も指した手も大差なし：採用しない
+		if (abs(move_eval) > 2500) and (abs(bestmove_eval) > 2500):
+			return False
+
+
 	# 読み筋が少ない：採用しない
 	splited_pv = bestmove.pvs[0].pv
 	if len(splited_pv.split()) < 3:
@@ -122,7 +127,9 @@ def convert_word(piece, move, board):
 def convert_moves(moves, sfen):
 	board = shogi.Board(sfen)
 	words = ""
-	for move in moves.split():
+	# 読み筋を9手までに制限
+	saved_moves = moves.split()[:9]
+	for move in saved_moves:
 		piece = convert_piece(move[0], move[1], board)
 		board.push_usi(move)
 		words += convert_word(piece, move, board) + "　"
