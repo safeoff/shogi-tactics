@@ -149,7 +149,7 @@ def convert_premove(premove, sfen):
 def create_tactics(battle_type, moves, sfens, times, is_first):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
-	usi.set_engine_options({"MultiPV": "2", "ConsiderationMode": "true", "NetworkDelay2": "0", "Hash": "512"})
+	usi.set_engine_options({"MultiPV": "2", "ConsiderationMode": "true", "NetworkDelay2": "0", "Hash": "256"})
 	# usi.debug_print = True
 	#usi.connect("../YaneuraOu/YaneuraOu-by-gcc")
 	usi.connect("../YaneuraOu479/YaneuraOu-arm64-v8a")

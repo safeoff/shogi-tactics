@@ -50,19 +50,19 @@ def convert_board(sfen, premove):
 
 
 # 計算結果をAnki形式に変換
-# front: 局面、一つ前の手、最善手の評価値、二番手の評価値、本譜の評価値
-# back: 最善手の読み筋、二番手の読み筋、本譜の読み筋
+# front: 局面、一つ前の手、最善手の評価値、次善手の評価値、本譜の評価値
+# back: 最善手の読み筋、次善手の読み筋、本譜の読み筋
 def convert_tactics_anki(tactics):
 	board = convert_board(tactics["sfen"], tactics["premove"])
 	premove = tactics["premove"] + "まで　"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
-	bettermove_eval = "二番手の評価値：　" + str(tactics["bettermove_eval"]) + "　"
+	bettermove_eval = "次善手の評価値：　" + str(tactics["bettermove_eval"]) + "　"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
 
 	front = board + premove + bestmove_eval + bettermove_eval + move_eval
 
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
-	bettermove = "二番手+CPUの読み筋：　" + tactics["bettermove"] + "　"
+	bettermove = "次善手+CPUの読み筋：　" + tactics["bettermove"] + "　"
 	move = "指した手+CPUの読み筋：　" + tactics["move"] + "　"
 
 	back = bestmove + bettermove + move
@@ -70,14 +70,14 @@ def convert_tactics_anki(tactics):
 
 
 # 計算結果をHTML形式に変換
-# front: 戦法、局面、一つ前の手、最善手の評価値、二番手の評価値、本譜の評価値
-# back: 最善手の読み筋、二番手の読み筋、本譜の読み筋
+# front: 戦法、局面、一つ前の手、最善手の評価値、次善手の評価値、本譜の評価値
+# back: 最善手の読み筋、次善手の読み筋、本譜の読み筋
 def convert_tactics_text(tactics, qnum):
 	battle_type = "【問題" + qnum + "】" + tactics["battle_type"] + "<br>"
 	board = convert_board(tactics["sfen"], tactics["premove"]) + "<br>"
 	premove = tactics["premove"] + "まで<br>"
 	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "<br>"
-	bettermove_eval = "二番手の評価値：　" + str(tactics["bettermove_eval"]) + "<br>"
+	bettermove_eval = "次善手の評価値：　" + str(tactics["bettermove_eval"]) + "<br>"
 	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "<br>"
 
 	front = battle_type + board + premove + bestmove_eval + bettermove_eval + move_eval
@@ -85,7 +85,7 @@ def convert_tactics_text(tactics, qnum):
 	button ="<input type=\"button\" value=\"解答\" onclick=\"document.getElementById(\'" + qnum + "\').style.visibility = \'visible\';\">"
 	div = "<div id=\"" + qnum + "\" style=\"visibility:hidden\">"
 	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "<br>"
-	bettermove = "二番手+CPUの読み筋：　" + tactics["bettermove"] + "<br>"
+	bettermove = "次善手+CPUの読み筋：　" + tactics["bettermove"] + "<br>"
 	move = "指した手+CPUの読み筋：　" + tactics["move"] + "<br>"
 
 	back = button + div + bestmove + bettermove + move + "</div><hr>\n"
