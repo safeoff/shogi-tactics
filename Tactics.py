@@ -24,12 +24,12 @@ def is_badmove(move, bestmove):
 	bestmove_eval = bestmove.pvs[0].eval
 	loss = abs(bestmove_eval - move_eval)
 
-	# 評価値の絶対値0-2000 : 許容する損失の閾値600-1200 のイメージ
+	# 評価値の絶対値0-1500 : 許容する損失の閾値600-1000 のイメージ
 	eval_limit = abs(bestmove_eval)*0.3 + 600
 	if loss < eval_limit:
 		return False
 	# 勝勢or敗勢な局面：採用しない
-	if abs(bestmove_eval) > 2000:
+	if abs(bestmove_eval) > 1500:
 		return False
 
 	# 上記以外は悪手と判定　採用
@@ -149,7 +149,7 @@ def convert_premove(premove, sfen):
 def create_tactics(battle_type, moves, sfens, times, is_first):
 	# エンジン起動
 	usi = Ayane.UsiEngine()
-	usi.set_engine_options({"MultiPV": "2"})
+	usi.set_engine_options({"MultiPV": "2", "ConsiderationMode": "true", "NetworkDelay2": "0", "Hash": "512"})
 	# usi.debug_print = True
 	#usi.connect("../YaneuraOu/YaneuraOu-by-gcc")
 	usi.connect("../YaneuraOu479/YaneuraOu-arm64-v8a")
@@ -163,7 +163,7 @@ def create_tactics(battle_type, moves, sfens, times, is_first):
 			if is_first_now != is_first:
 				break
 		usi.usi_position("startpos moves " + " ".join(moves[0:i]))
-		usi.usi_go_and_wait_bestmove("byoyomi 2000")
+		usi.usi_go_and_wait_bestmove("byoyomi 3000")
 		# 思考結果を記録　初手は記録しない
 		if i > 0:
 			think_results.append([moves[i-1], moves[i], usi.think_result])
