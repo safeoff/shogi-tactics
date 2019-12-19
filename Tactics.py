@@ -121,9 +121,13 @@ def convert_word(piece, move, board):
 def convert_moves(moves, sfen):
 	board = shogi.Board(sfen)
 	words = ""
+	consider_map = {"rep_draw": "【千日手】", "rep_sup": "【優等局面】", "rep_inf": "【劣等局面】", "rep_win": "【反則勝ち】", "rep_lose": "【反則負け】", "win": "【宣言勝ち】", "resign": "【投了】"}
 	# 読み筋を9手までに制限
 	saved_moves = moves.split()[:9]
 	for move in saved_moves:
+		if move in consider_map:
+			words += consider_map[move]
+			break
 		piece = convert_piece(move[0], move[1], board)
 		board.push_usi(move)
 		words += convert_word(piece, move, board) + "　"
