@@ -130,7 +130,7 @@ def convert_moves(moves, sfen):
 			break
 		piece = convert_piece(move[0], move[1], board)
 		board.push_usi(move)
-		words += convert_word(piece, move, board) + "　"
+		words += convert_word(piece, move, board) + " "
 
 	return words
 

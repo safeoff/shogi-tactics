@@ -55,15 +55,15 @@ def convert_board(sfen, premove):
 def convert_tactics_anki(tactics):
 	board = convert_board(tactics["sfen"], tactics["premove"])
 	premove = tactics["premove"] + "まで　"
-	bestmove_eval = "最善手の評価値：　" + str(tactics["bestmove_eval"]) + "　"
-	bettermove_eval = "次善手の評価値：　" + str(tactics["bettermove_eval"]) + "　"
-	move_eval = "指した手の評価値：　" + str(tactics["move_eval"]) + "　"
+	bestmove_eval = "最善手：" + str(tactics["bestmove_eval"]) + "<br>"
+	bettermove_eval = "次善手：" + str(tactics["bettermove_eval"]) + "　"
+	move_eval = "指した手：" + str(tactics["move_eval"]) + "　"
 
 	front = board + premove + bestmove_eval + bettermove_eval + move_eval
 
-	bestmove = "最善手+CPUの読み筋：　" + tactics["bestmove"] + "　"
-	bettermove = "次善手+CPUの読み筋：　" + tactics["bettermove"] + "　"
-	move = "指した手+CPUの読み筋：　" + tactics["move"] + "　"
+	bestmove = "最善手：" + tactics["bestmove"]
+	bettermove = "<br>次善手：" + tactics["bettermove"]
+	move = "<br>指した手：" + tactics["move"]
 
 	back = bestmove + bettermove + move
 	return front, back
