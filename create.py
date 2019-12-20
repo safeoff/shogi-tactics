@@ -154,6 +154,8 @@ def create(id, gt, is_fileonly, limit_num):
 	for k, v in c.items():
 		msg = "created " + str(v) + " " + k + " tactics."
 		print(msg)
+	if not collections:
+		print("no tactics.")
 
 
 if __name__ == "__main__":
