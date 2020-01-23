@@ -142,7 +142,7 @@ def create(id, gt, is_fileonly, limit_num):
 		# Anki
 		else:
 			front, back = convert_tactics_anki(tactics)
-			deck = "学習::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
+			deck = "学習::C::将棋::実践次の一手::" + id + "::" + tactics["battle_type"]
 			anki_result = AddAnki.addAnki(front, back, deck)
 			is_success = "1" in str(anki_result)
 
